@@ -2,6 +2,8 @@ const express =  require('express');
 const Student = require('../models/student');
 const Subject= require('../models/subject');
 const StudentSubject = require('../models/studentsubject');
+const sequelize = require('../util/database');
+const { Op } = require ('sequelize');
 const routerSubject = express.Router()
 
 routerSubject.post('/subjects', async (req, res) => {
@@ -9,7 +11,7 @@ routerSubject.post('/subjects', async (req, res) => {
         const { subject_name } = req.body;
 
         const subject = await Subject.create({ subject_name });     
-       res.status(201).json("Subject added");
+       res.status(201).json({message : "Subject added"});
 } catch ( error) {
   if (error.subject_namename === "SequelizeUniqueConstraintError") {
     return res.status(400).json({ error: "Subject name already exists" });
@@ -83,13 +85,15 @@ routerSubject.post('/subjects', async (req, res) => {
 // Assign subjects to a student
 routerSubject.post('/assignSubjects', async (req, res) => {
   try {
-      const { studentId, subjectIds } = req.body;
+      const { studentId, subjectId } = req.body;
 
-      const student = await Student.findByPk(studentId);
+      const student = await Student.findOne({ where : { id : studentId}});
       if (!student) return res.status(404).json({ error: "Student not found" });
+      
+      console.log( req.body.studentId);
 
       const subjects = await Subject.findAll({
-          where: { id: { [Op.in]: subjectIds } }
+          where: { id: { [Op.in]: subjectId } }
       });
 
       await student.addSubjects(subjects);
