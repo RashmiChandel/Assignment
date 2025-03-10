@@ -59,7 +59,6 @@ routerStudent.post('/students', async (req, res) => {
             subjects: st.Subjects ? st.Subjects.map(subject => subject.subject_name) : [] // Ensure it doesn't break if no subjects are found
         }));
 
-        //res.json(studentSubjects); // ✅ Send response only once
           res.json(students);
 
     } catch (error) {
