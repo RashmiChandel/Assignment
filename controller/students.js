@@ -155,6 +155,32 @@ res.json({message: ' Student deleted successfully'});
 
 });
 
+routerStudent.post('/add-subjects', async(req, res) => {
+try{
+  const{studentId, subjectId} = req.body;
+
+  const student = await Student.findByPk(studentId);
+  if(!student){
+    return res.status(404).json({ error : 'Student not found'});
+  }
+
+  const subjects = await Subject.findAll({
+    where: {id: subjectId }
+  });
+
+  if(subjects.length !== subjectId.length){
+    return res.status(404).json({ message: "One or more subjects not found"});
+  }
+
+  await student.addSubjects(subjects);
+
+  return res.status(200).json({ message: " Subjects assigned successfully"});
+} catch(error){
+console.log('Error adding subjects', error);
+return res.status(500).json({ error: 'Internal server error'});
+}
+});
+
  routerStudent.post('/insert-marks', async (req, res) => {
   try {
       const { studentId, marks } = req.body;

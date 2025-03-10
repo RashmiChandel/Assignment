@@ -81,45 +81,4 @@ routerSubject.post('/subjects', async (req, res) => {
   });
 
 
-// Assign subjects to a student
-routerSubject.post('/assignSubjects',  async (req, res) => {
-  try {
-      const { studentId, subjectIds } = req.body;
-
-      if (!studentId || !subjectIds || !Array.isArray(subjectIds)) {
-          return res.status(400).json({ error: "Invalid input. Provide studentId and an array of subjectIds." });
-      }
-
-      const student = await Student.findByPk(studentId);
-      if (!student) {
-          return res.status(404).json({ error: "Student not found" });
-      }
-      
-      const subjects = await Subject.findAll({ where: { id: subjectIds } });
-      if (subjects.length !== subjectIds.length) {
-          return res.status(400).json({ error: "Some subjects not found" });
-      }
-
-      // ✅ Assign Subjects to Student (Many-to-Many Relationship)
-      await student.setSubjects(subjectIds);  // Sequelize automatically manages associations
-
-      // ✅ Fetch Updated Data
-      const updatedStudent = await Student.findByPk(studentId, {
-          include: {
-              model: Subject,
-              through: { attributes: [] }, // Exclude junction table fields
-          },
-      });
-
-      return res.json({
-          message: "Subjects assigned successfully",
-          student: updatedStudent,
-      });
-
-  } catch (error) {
-      console.error("Error assigning subjects:", error);
-      return res.status(500).json({ error: "Internal Server Error" });
-  }
-} );
-
   module.exports = routerSubject
