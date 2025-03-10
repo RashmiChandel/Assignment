@@ -21,12 +21,19 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true}));
 app.use(cors());
 
+app.use((req, res, next) => {
+    console.log("Request received:", req.method, req.url);
+    console.log("Headers:", req.headers);
+    console.log("Body:", req.body);
+    next();
+});
+
 
 app.use('/api' , routerStudent );
 app.use('/api' , routerSubject);
 
 
-sequelize.sync( { force : true })
+sequelize.sync()
 .then(() => {
     console.log(' Database synced successfully')})
  .catch((err) => console.error('Error in syncing database :', err));

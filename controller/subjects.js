@@ -3,7 +3,6 @@ const Student = require('../models/student');
 const Subject= require('../models/subject');
 const StudentSubject = require('../models/studentsubject');
 const sequelize = require('../util/database');
-const { Op } = require ('sequelize');
 const routerSubject = express.Router()
 
 routerSubject.post('/subjects', async (req, res) => {
@@ -83,25 +82,44 @@ routerSubject.post('/subjects', async (req, res) => {
 
 
 // Assign subjects to a student
-routerSubject.post('/assignSubjects', async (req, res) => {
+routerSubject.post('/assignSubjects',  async (req, res) => {
   try {
-      const { studentId, subjectId } = req.body;
+      const { studentId, subjectIds } = req.body;
 
-      const student = await Student.findOne({ where : { id : studentId}});
-      if (!student) return res.status(404).json({ error: "Student not found" });
+      if (!studentId || !subjectIds || !Array.isArray(subjectIds)) {
+          return res.status(400).json({ error: "Invalid input. Provide studentId and an array of subjectIds." });
+      }
+
+      const student = await Student.findByPk(studentId);
+      if (!student) {
+          return res.status(404).json({ error: "Student not found" });
+      }
       
-      console.log( req.body.studentId);
+      const subjects = await Subject.findAll({ where: { id: subjectIds } });
+      if (subjects.length !== subjectIds.length) {
+          return res.status(400).json({ error: "Some subjects not found" });
+      }
 
-      const subjects = await Subject.findAll({
-          where: { id: { [Op.in]: subjectId } }
+      // ✅ Assign Subjects to Student (Many-to-Many Relationship)
+      await student.setSubjects(subjectIds);  // Sequelize automatically manages associations
+
+      // ✅ Fetch Updated Data
+      const updatedStudent = await Student.findByPk(studentId, {
+          include: {
+              model: Subject,
+              through: { attributes: [] }, // Exclude junction table fields
+          },
       });
 
-      await student.addSubjects(subjects);
+      return res.json({
+          message: "Subjects assigned successfully",
+          student: updatedStudent,
+      });
 
-      res.json({ message: "Subjects assigned successfully" });
   } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error("Error assigning subjects:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
   }
-});
+} );
 
   module.exports = routerSubject

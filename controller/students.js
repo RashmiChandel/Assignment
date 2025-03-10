@@ -27,15 +27,23 @@ routerStudent.post('/students', async (req, res) => {
 });
 
  //Get all students
- routerStudent.get('/student', async (req, res) => {
-  try {
-    const students = await Student.findAll();
+//  routerStudent.get('/student', async (req, res) => {
+//   try {
+//     const students = await Student.findAll();
 
-    res.json(students);
-} catch(error){
-  res.status(500).json({ error: error.message});
-}
-  });
+//     res.json(students);
+// } catch(error){
+//   res.status(500).json({ error: error.message});
+// }
+//   });
+
+routerStudent.post('/students', (req, res) => {
+  if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: "Invalid JSON or empty request body" });
+  }
+  res.json({ message: "Student added successfully", data: req.body });
+});
+
 
   routerStudent.get('/students', async (req, res) => {
     try {
