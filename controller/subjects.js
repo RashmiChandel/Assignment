@@ -76,9 +76,61 @@ routerSubject.post('/subjects', async (req, res) => {
   res.json({message: ' Sujbect deleted successfully'});
   } catch(error) {
     res.status(500).json({error: error.message});
-  }
+  }});
+
+
+  //STUDENT CAN CHOOSE SUBJECTS
+  routerSubject.post('/add-subjects', async(req, res) => {
+  try{
+    const{studentId, subjectId} = req.body;
   
+    const student = await Student.findByPk(studentId);
+    if(!student){
+      return res.status(404).json({ error : 'Student not found'});
+    }
+    const subjects = await Subject.findAll({
+      where: {id: subjectId }
+    });
+  
+    if(subjects.length !== subjectId.length){
+      return res.status(404).json({ message: "One or more subjects not found"});
+    }
+    await student.addSubjects(subjects);
+    return res.status(200).json({ message: " Subjects assigned successfully"});
+  } catch(error){
+  console.log('Error adding subjects', error);
+  return res.status(500).json({ error: 'Internal server error'});
+  }
   });
+
+  //STUDENT CAN UPDATE CHOOSE SUBJETS
+routerSubject.put('/update-subjects', async (req,res) => {
+try{
+  const { studentId, subjectId} = req.body;
+
+   const student = await Student.findByPk(studentId);
+   if(!student){
+    return res.status(404).json({ error: " Student not found"});
+   }
+   const subjects = await Subject.findAll({
+    where: { id: subjectId }
+   });
+
+   if(subjects.length !== subjectId.length){
+    return res.status(404).json({message: " One or more subjects not found"});
+   }
+
+   await student.setSubjects([]);    //If want to add subjects without deleting previous one then remove this
+
+   await student.addSubjects(subjects);
+
+   return res.status(200).json({message: "Subjects updated successfully"});
+}  
+catch(error){
+console.error(" Error in updating subjects: ", error);
+return res.status(500).json({ error: " Internal server error"});
+}
+});
 
 
   module.exports = routerSubject

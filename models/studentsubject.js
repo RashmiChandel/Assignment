@@ -6,11 +6,6 @@ const Subject = require('../models/subject');
 const StudentSubject = sequelize.define('StudentSubject', {
     id: { type: Sequelize.DataTypes.INTEGER,
          autoIncrement: true, primaryKey: true },
-         
-         marks: {
-            type: Sequelize.DataTypes.INTEGER,
-            allowNull: true // Marks can be null initially
-        }
 
 }, {tableName: 'student_subject', timestamps: false });
 

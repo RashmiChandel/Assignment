@@ -37,14 +37,14 @@ routerStudent.post('/students', async (req, res) => {
 // }
 //   });
 
-routerStudent.post('/students', (req, res) => {
-  if (!req.body || Object.keys(req.body).length === 0) {
-      return res.status(400).json({ error: "Invalid JSON or empty request body" });
-  }
-  res.json({ message: "Student added successfully", data: req.body });
-});
+// routerStudent.post('/students', (req, res) => {
+//   if (!req.body || Object.keys(req.body).length === 0) {
+//       return res.status(400).json({ error: "Invalid JSON or empty request body" });
+//   }
+//   res.json({ message: "Student added successfully", data: req.body });
+// });
 
-
+//GET ALL STUDENTS WITH THEIR SUBJECTS
   routerStudent.get('/students', async (req, res) => {
     try {
         const students = await Student.findAll({
@@ -54,11 +54,9 @@ routerStudent.post('/students', (req, res) => {
                 through: { attributes: [] }, // This removes the join table attributes
             }
         });
-
         if (!students || students.length === 0) {
             return res.status(404).json({ error: "No students found" });
         }
-
         const studentSubjects = students.map(st => ({
             id: st.id,
             name: st.name,
@@ -66,47 +64,12 @@ routerStudent.post('/students', (req, res) => {
             phone_no: st.phone_no,
             subjects: st.Subjects ? st.Subjects.map(subject => subject.subject_name) : [] // Ensure it doesn't break if no subjects are found
         }));
-
           res.json(students);
-
     } catch (error) {
         console.error("Error fetching students:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
-
-  
-
-// routerStudent.get('/students', async (req, res) => {
-//     try {
-//       const student = await Student.findAll({
-//         include: {
-//           model: Subject,
-//           attributes: ['subject_name'],
-//           through: { attributes: [] }, 
-//         },
-//       });
-//       // console.log(student.map((st) => st.Subjects));
-//       const studentSubjects = student.map(st => ({ 
-//         id: st.id, name: st.name, email: st.email, phone_no: st.phone_no,
-//         subjects: st.Subjects.map(subject => subject.subject_name)
-//       }));
-      
-//       console.log(studentSubjects);
-//       res.json(studentSubjects);
-
-//     if(!student) {
-//    return res.status(404).json({error: "student not found"});
-//     }
-
-//     // const subjectNames = student.Subject.map(subject => subject.subject_name);
-//     res.status(200).json(student);
-//     } catch (error) {
-//       console.error("Error fetching students:", error);
-//       res.status(500).json({ error: "Internal server error" });
-//     }
-//   });
-
 
   routerStudent.put("/students/:id", async (req, res) => {
     try {
@@ -136,9 +99,6 @@ routerStudent.post('/students', (req, res) => {
     }
 });
 
-  
-  
- 
 routerStudent.delete('/students/:id', async (req, res) => {
 try {
   const { id } = req.params;
@@ -151,36 +111,9 @@ try {
 res.json({message: ' Student deleted successfully'});
 } catch(error) {
   res.status(500).json({error: error.message});
-}
+}});
 
-});
 
-routerStudent.post('/add-subjects', async(req, res) => {
-try{
-  const{studentId, subjectId} = req.body;
-
-  const student = await Student.findByPk(studentId);
-  if(!student){
-    return res.status(404).json({ error : 'Student not found'});
-  }
-
-  const subjects = await Subject.findAll({
-    where: {id: subjectId }
-  });
-
-  if(subjects.length !== subjectId.length){
-    return res.status(404).json({ message: "One or more subjects not found"});
-  }
-
-  await student.addSubjects(subjects);
-
-  return res.status(200).json({ message: " Subjects assigned successfully"});
-} catch(error){
-console.log('Error adding subjects', error);
-return res.status(500).json({ error: 'Internal server error'});
-}
-});
 
  
-
 module.exports = routerStudent 

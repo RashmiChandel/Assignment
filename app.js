@@ -1,22 +1,12 @@
  const express = require("express")
-//  const bodyParser = require('body-parser')
 const cors = require("cors")
 const { Sequelize, DataTypes } = require('sequelize')
 
-// const routerStudent = require("../router/student")
-// const routerSubjects = require("../router/subject")
-// const routerStudSub = require("../router/studentsub")
-
 const sequelize = require('./util/database');
-// const routerStudent = require('./models/student');
-// const routerSubject = require('./models/subject');
-// const routerStudentSubject = require('./models/studentsubject');
-
 const routerStudent = require('./controller/students')
 const routerSubject = require('./controller/subjects')
 
 const app = express()
-
 app.use(express.json())
 app.use(express.urlencoded({ extended: true}));
 app.use(cors());
