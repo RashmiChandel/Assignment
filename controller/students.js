@@ -181,43 +181,6 @@ return res.status(500).json({ error: 'Internal server error'});
 }
 });
 
- routerStudent.post('/insert-marks', async (req, res) => {
-  try {
-      const { studentId, marks } = req.body;
-
-      // Check if the student exists
-      const student = await Student.findByPk(studentId);
-      if (!student) {
-          return res.status(404).json({ message: "Student not found" });
-      }
-
-      // Loop through each subject mark and insert into StudentSubject table
-      for (let subjectMark of marks) {
-        console.log(subjectMark)
-          const { subjectId, mark } = subjectMark;
-          console.log(subjectId)
-          // Check if the subject exists
-          const subject = await Subject.findByPk(subjectId);
-          if (!subject) {
-              return res.status(404).json({ message: `Subject with ID ${subjectId} not found` });
-          }
-
-          // Insert or update marks in StudentSubject table
-          subject_id=subjectId
-          student_id = studentId
-          await StudentSubject.create({
-              student_id,
-              subject_id,
-              marks: mark
-          });
-      }
-
-      res.status(200).json({ message: "Marks inserted successfully" });
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
-  }
-});
-
+ 
 
 module.exports = routerStudent 
