@@ -132,5 +132,59 @@ return res.status(500).json({ error: " Internal server error"});
 }
 });
 
+//Insert marks into subject
+routerSubject.post('/students/:studentId/subjects/:subjectId/marks', async (req,res) =>{
+     const { studentId, subjectId } = req.params;
+     const { marks } = req.body;
+
+     try{
+      let record = await StudentSubject.findOne({
+        where: { studentId, subjectId},
+      });
+      if(record){
+        record.marks = marks;
+        await record.save();
+        return res.json({message: "Marks updated successfully", data : record });
+       } else {
+        const newRecord = await StudentSubject.create({
+          studentId, subjectId, marks,
+        });
+    return res.json({message: "Marks added successfully", data: newRecord});    
+       }
+     } catch(error){
+      console.error("Error in updating marks", error);
+      return res.status(500).json({error: "Internal server error" });
+     }
+});
+
+routerSubject.get("/students/:studentId/subjects/:subjectId", async(req,res) => {
+  const { subjectId,studentId} = req.params;
+  try{
+    const result = await StudentSubject.findOne({
+      where: {studentId, subjectId},
+      include: [
+      {
+        model: Student, attributes: ["name"],
+      },
+      {
+        model: Subject , attributes: ["subject_name"],
+      },
+      ],
+      attributes: ["marks"],
+    });
+
+    if(!result){
+      return res.status(404).json({message: "Student has not enrolled this subject"});
+    }
+    return res.json({
+      studentName: result.Student.name,
+      subjectName: result.Subject.subject_name,
+      marks: result.marks,
+    });
+  } catch(error){
+    console.error(error,"Error in fetching student marks: ");
+    return res.status(500).json({error: "Internal server error"});
+  }
+});
 
   module.exports = routerSubject

@@ -22,27 +22,7 @@ routerStudent.post('/students', async (req, res) => {
 }
   console.error("Error creating Students", error);
     res.status(500).json({ error: "Internal server error" });
-}
-
-});
-
- //Get all students
-//  routerStudent.get('/student', async (req, res) => {
-//   try {
-//     const students = await Student.findAll();
-
-//     res.json(students);
-// } catch(error){
-//   res.status(500).json({ error: error.message});
-// }
-//   });
-
-// routerStudent.post('/students', (req, res) => {
-//   if (!req.body || Object.keys(req.body).length === 0) {
-//       return res.status(400).json({ error: "Invalid JSON or empty request body" });
-//   }
-//   res.json({ message: "Student added successfully", data: req.body });
-// });
+}});
 
 //GET ALL STUDENTS WITH THEIR SUBJECTS
   routerStudent.get('/students', async (req, res) => {
@@ -50,7 +30,7 @@ routerStudent.post('/students', async (req, res) => {
         const students = await Student.findAll({
             include: {
                 model: Subject,
-                attributes: ['subject_name'],
+                attributes: ['id', 'subject_name'],
                 through: { attributes: [] }, // This removes the join table attributes
             }
         });
@@ -75,11 +55,7 @@ routerStudent.post('/students', async (req, res) => {
     try {
         const { id } = req.params;  
         const { name, email, phone_no } = req.body;  
-
-        
         const studentId = parseInt(id, 10);
-
-      
         const student = await Student.findByPk(studentId);
         if (!student) {
             return res.status(404).json({ error: "Student not found" });
@@ -88,9 +64,7 @@ routerStudent.post('/students', async (req, res) => {
             { name, email, phone_no }, 
             { where: { id: studentId } } 
         );
-
         const updatedStudent = await Student.findByPk(studentId);
-
         res.json({ message: "Student updated successfully", student: updatedStudent });
 
     } catch (error) {
@@ -113,7 +87,36 @@ res.json({message: ' Student deleted successfully'});
   res.status(500).json({error: error.message});
 }});
 
+routerStudent.get('/students/:studentId', async(req, res) => {
+  try{
+    const { studentId } = req.params;
+
+    const student = await Student.findOne({
+      where: { id: studentId },
+      attributes: ["name"],
+      include: [
+        { model: Subject,
+          attributes: ["subject_name"],
+         through: {attributes: ["marks"],
+          },
+        },
+      ],
+    });
+
+if(!student){
+  return res.status(404).json({message: "Student not found"});
+}
+const subjects = student.Subjects.map((subject) => ({
+  subjectName: subject.subject_name,
+  marks: subject.StudentSubject.marks, 
+}));
+const response = {studentName: student.name, subjects};
+res.status(200).json(response);
+  } catch(error){
+    console.error("Error fetching student report: ", error);
+    res.status(500).json({error: "Internal server error" });
+  }
+});
 
 
- 
 module.exports = routerStudent 

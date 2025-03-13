@@ -7,10 +7,13 @@ const StudentSubject = sequelize.define('StudentSubject', {
     id: { type: Sequelize.DataTypes.INTEGER,
          autoIncrement: true, primaryKey: true },
 
+    marks:{ type: Sequelize.DataTypes.INTEGER,
+           allowNull: true }    
 }, {tableName: 'student_subject', timestamps: false });
 
- Student.belongsToMany(Subject, {through: StudentSubject, foreignkey: 'student_id'});
- Subject.belongsToMany(Student, {through: StudentSubject, foreignkey: 'subject_id'});
+ Student.belongsToMany(Subject, {through: StudentSubject, foreignKey: 'studentId'});
+ Subject.belongsToMany(Student, {through: StudentSubject, foreignKey: 'subjectId'});
  
- 
+ StudentSubject.belongsTo(Student, {foreignKey: "studentId"});
+ StudentSubject.belongsTo(Subject, {foreignKey: "subjectId"});
  module.exports = StudentSubject;
