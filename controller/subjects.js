@@ -103,7 +103,7 @@ routerSubject.post('/subjects', async (req, res) => {
   }
   });
 
-  //STUDENT CAN UPDATE CHOOSE SUBJETS
+  //STUDENT CAN UPDATE CHOOSED SUBJETS
 routerSubject.put('/update-subjects', async (req,res) => {
 try{
   const { studentId, subjectId} = req.body;
@@ -132,7 +132,7 @@ return res.status(500).json({ error: " Internal server error"});
 }
 });
 
-//Insert marks into subject
+//INSERT MARKS INTO SUBJECTS
 routerSubject.post('/students/:studentId/subjects/:subjectId/marks', async (req,res) =>{
      const { studentId, subjectId } = req.params;
      const { marks } = req.body;
@@ -157,6 +157,7 @@ routerSubject.post('/students/:studentId/subjects/:subjectId/marks', async (req,
      }
 });
 
+// GET PARTICULAR STUDENT SUBJECT MARK
 routerSubject.get("/students/:studentId/subjects/:subjectId", async(req,res) => {
   const { subjectId,studentId} = req.params;
   try{
@@ -174,7 +175,7 @@ routerSubject.get("/students/:studentId/subjects/:subjectId", async(req,res) => 
     });
 
     if(!result){
-      return res.status(404).json({message: "Student has not enrolled this subject"});
+      return res.status(404).json({message: "Student has not enrolled into this subject"});
     }
     return res.json({
       studentName: result.Student.name,
